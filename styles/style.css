@@ -1,0 +1,183 @@
+body {
+  text-align: center;
+  background: url("images/spaceinvadersminimal.jpg");
+  width: 100vh;
+  height: 100vh;
+  display: flex;
+  margin: 0 auto;
+  justify-content: center;
+}
+
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+h1 {
+  font-family: 'Lobster', cursive;
+  padding: 2%;
+  color: white;
+  background: black;
+  border-radius: 15px;
+  font-size: 60px;
+  line-height: 2;
+  animation-duration: 3s;
+  animation-name: pulse;
+  text-shadow: 2px 3px gray;
+}
+
+h1:hover {
+  animation: shake 0.5s;
+}
+
+header {
+  /* display: flex; */
+  text-align: center;
+}
+
+.front {
+  top: 100px;
+  width: 900px;
+  height: 600px;
+  padding: 0;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 15px;
+  align-items: center;
+}
+
+.border {
+  width: 900px;
+}
+
+.board {
+  width: 900px;
+  line-height: 0;
+  margin: 0 auto;
+  display: flex;
+  margin-top: 40px;
+  flex-wrap: wrap;
+  border-radius: 15px;
+  visibility: hidden;
+  margin-bottom: 50px;
+  background: white;
+}
+
+button:hover {
+  animation: shake 0.5s;
+}
+
+.rules {
+  font-family: 'Roboto Slab', serif;
+  color: white;
+  margin-top: 30px;
+  line-height: 2.5;
+  width: 60%;
+  background: black;
+  font-size: 20px;
+  border-radius: 15px;
+}
+
+.rules:hover {
+  animation: shake 0.5s;
+}
+
+.startButton {
+  margin-top: 40px;
+  margin-bottom: 20px;
+  border-radius: 15px;
+  background: black;
+  line-height: 1.5;
+  font-size: 16px;
+  width: 170px;
+  height: 80px;
+  font-family: 'Lobster', cursive;
+  font-size: 30px;
+  border: 1px solid black;
+  color: white;
+}
+
+.grid {
+  height: 45px;
+  width: 45px;
+}
+
+.scoreboard {
+  font-family: 'Press Start 2P', cursive;
+  color: white;
+  font-size: 30px;
+  margin-top: 40px;
+}
+
+.gamescore {
+  font-family: 'Press Start 2P', cursive;
+  color: white;
+  font-size: 30px;
+}
+
+.laser {
+  background: url("images/catpixel2.png");
+  background-size: 45px 45px;
+}
+
+.imgalien {
+  width: 60px;
+  height: 60px;
+}
+.enemylaser {
+  background: url("images/banananarama.png");
+  background-size: 45px 45px;
+}
+
+.alien {
+  height: 45px;
+  width: 45px;
+  background: url("images/alien.png");
+  background-size: 45px 45px;
+}
+
+.player {
+  background: url("images/lasercannon.png");
+  background-size: 45px 45px;
+}
+
+.timer {
+  font-family: 'Press Start 2P', cursive;
+  color: white;
+  font-size: 30px;
+}
+
+@-webkit-keyframes pulse {
+  from {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+
+  50% {
+    -webkit-transform: scale3d(1.05, 1.05, 1.05);
+    transform: scale3d(1.05, 1.05, 1.05);
+  }
+
+  to {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(3px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(3px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(1px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
