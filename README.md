@@ -1,21 +1,21 @@
 Readme in progress 
 
-#Personal Space Invaders
+# Personal Space Invaders
 
-##Timeframe
+## Timeframe
 7 days
 
-##Technologies used
+## Technologies used
 JavaScript (ES6)
 HTML5 + HTML5 Audio
 CSS
 GitHub
 My Game - Space Invaders
 
-Game overview
+## Game overview
 
 Controls
 player movements: ← → keys
 player attack: [space bar]
-Game Instructions
+## Game Instructions
 Destroy all the aliens. Don't die.
