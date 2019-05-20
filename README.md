@@ -22,9 +22,9 @@ GitHub
 
 ![psigame](https://user-images.githubusercontent.com/29276064/57709844-aabf1480-7663-11e9-827e-db9b24cd2545.png)
 
-###Controls
-player movements: ← → keys
-player attack: [space bar]
+### Controls
+Player movements: ← → keys
+Player attack: [space bar]
 
 ## Game overview
 
