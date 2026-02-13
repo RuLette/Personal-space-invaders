@@ -99,6 +99,10 @@ button:hover {
   font-size: 30px;
   border: 1px solid black;
   color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .grid {
@@ -127,6 +131,7 @@ button:hover {
 .imgalien {
   width: 60px;
   height: 60px;
+  vertical-align: middle;
 }
 .enemylaser {
   background: url("images/banananarama.png");

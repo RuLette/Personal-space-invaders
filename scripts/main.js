@@ -3,6 +3,8 @@ $(() => {
   const board = document.querySelector('.board')
   const gameboard = []
   let gameIsPlaying = false
+  let animationFrameId = null
+  let gameLoopInterval = null
   const blast = new Audio('sounds/blast.wav')
   const xplode = new Audio('sounds/explosion.wav')
   const excellentplay = new Audio('sounds/excellentplay.wav')
@@ -20,7 +22,13 @@ $(() => {
     gameboard.push(grid)
   }
 
-  const gridItems = document.querySelectorAll('.grid')
+  const $timer = $('.timer')
+  const $startButton = $('.startButton')
+  const $front = $('.front')
+  const $board = $('.board')
+  const $logo = $('.logo')
+  const $scoreboard = $('.scoreboard')
+  const $rules = $('.rules')
 
   //2.0 ALIEN SPAWN DIV ------------>
   let enemyLasers = []
@@ -38,19 +46,18 @@ $(() => {
     enemyLaser() {
       const enemyLaserPosition = this.currentIndex + 20
       const shouldFire = Math.floor(Math.random() * 15)
-      let enemyLaser
       if (!shouldFire) {
-        enemyLaser = new Laser(enemyLaserPosition, 'down', 'enemyLaser')
+        const enemyLaser = new Laser(enemyLaserPosition, 'down', 'enemyLaser')
         enemyLasers.push(enemyLaser)
       }
     }
 
     render() {
-      $(gameboard).eq(this.currentIndex).addClass('alien')
+      gameboard[this.currentIndex].classList.add('alien')
     }
 
     move() {
-      $(gameboard).eq(this.currentIndex).removeClass('alien')
+      gameboard[this.currentIndex].classList.remove('alien')
       if (this.currentMoves < 9) {
         this.currentMoves++
         this.enemyLaser()
@@ -68,7 +75,7 @@ $(() => {
     }
   }
 
-  const aliens = [new Alien(21), new Alien(23), new Alien(25), new Alien(27), new Alien(29), new Alien(42), new Alien(44), new Alien(46), new Alien(48), new Alien(61), new Alien(63), new Alien(65), new Alien(67), new Alien(69)]
+  let aliens = [new Alien(21), new Alien(23), new Alien(25), new Alien(27), new Alien(29), new Alien(42), new Alien(44), new Alien(46), new Alien(48), new Alien(61), new Alien(63), new Alien(65), new Alien(67), new Alien(69)]
 
   //3.0 PLAYER LASERS --------------------->
 
@@ -91,42 +98,62 @@ $(() => {
     }
 
     move() {
-      // remove out of bound lasers
-      enemyLasers = enemyLasers.filter(l => l.index <= 299)
-      lasers = lasers.filter(l => l.index >= 0)
-      $(gameboard).eq(this.index).removeClass(this.type)
+      gameboard[this.index].classList.remove(this.type)
       if (this.direction === 'up') {
         this.index = this.index - 20
-        this.render()
+        if (this.index >= 0) {
+          this.render()
+        }
       } else {
-        this.removeEnemyLaser()
+        gameboard[this.index].classList.remove('enemylaser')
         this.index = this.index + 20
-        this.renderenemy()
+        if (this.index <= 299) {
+          this.renderenemy()
+        }
       }
     }
 
-    removeEnemyLaser() {
-      $(gameboard).eq(this.index).removeClass('enemylaser')
-    }
-
     renderenemy() {
-      $(gameboard).eq(this.index).addClass('enemylaser')
+      gameboard[this.index].classList.add('enemylaser')
     }
 
     render() {
-      $(gameboard).eq(this.index).addClass(this.type)
+      gameboard[this.index].classList.add(this.type)
     }
   }
 
   //4.0 GAMELOOP FUNCTIONS --------------------->
 
   function moveLasers() {
+    const validLasers = []
+    const validEnemyLasers = []
+    
     lasers.forEach(laser => {
+      const oldIndex = laser.index
       laser.move()
+      if (laser.index >= 0) {
+        validLasers.push(laser)
+      } else {
+        if (oldIndex >= 0 && oldIndex < 300) {
+          gameboard[oldIndex].classList.remove('laser')
+        }
+      }
     })
+    
     enemyLasers.forEach(eLaser => {
+      const oldIndex = eLaser.index
       eLaser.move()
+      if (eLaser.index <= 299) {
+        validEnemyLasers.push(eLaser)
+      } else {
+        if (oldIndex >= 0 && oldIndex < 300) {
+          gameboard[oldIndex].classList.remove('enemylaser')
+        }
+      }
     })
+    
+    lasers = validLasers
+    enemyLasers = validEnemyLasers
   }
 
   function moveAliens() {
@@ -136,27 +163,29 @@ $(() => {
   }
 
   function checkIfLost(){
-    aliens.forEach(alien => {
-      if (alien.currentIndex === playerCurrentIndex){
+    for (let i = 0; i < aliens.length; i++) {
+      if (aliens[i].currentIndex === playerCurrentIndex){
         console.log('YOU HAVE LOST')
         gameIsPlaying = false
+        return
       }
-    })
+    }
   }
 
   function enemyHit(){
-    enemyLasers.forEach(eLaser => {
-      if (eLaser.index === playerCurrentIndex){
+    for (let i = 0; i < enemyLasers.length; i++) {
+      if (enemyLasers[i].index === playerCurrentIndex){
         xplode.play()
         betterluck.play()
         console.log('YOU HAVE LOST')
         gameIsPlaying = false
+        return
       }
-    })
+    }
   }
 
   function checkIfWin(){
-    if (aliens === undefined || aliens.length === 0) {
+    if (aliens.length === 0) {
       excellentplay.play()
       console.log('YOU WIN!')
       gameIsPlaying = false
@@ -164,23 +193,28 @@ $(() => {
   }
 
   function checkForLaserHit() {
-    lasers.forEach((laser, laserIndex) => {
+    for (let laserIndex = lasers.length - 1; laserIndex >= 0; laserIndex--) {
+      const laser = lasers[laserIndex]
+      
       if (laser.index < 20) {
-        $(gridItems[laser.index]).removeClass('laser')
+        gameboard[laser.index].classList.remove('laser')
         lasers.splice(laserIndex, 1)
+        continue
       }
-      aliens.forEach((alien, alienIndex) => {
+      
+      for (let alienIndex = aliens.length - 1; alienIndex >= 0; alienIndex--) {
+        const alien = aliens[alienIndex]
         if (laser.index === alien.currentIndex){
-          $(gridItems[laser.index]).removeClass('alien')
-          $(gridItems[laser.index]).removeClass('laser')
+          gameboard[laser.index].classList.remove('alien')
+          gameboard[laser.index].classList.remove('laser')
           aliens.splice(alienIndex, 1)
           lasers.splice(laserIndex, 1)
           score += 1
-          const $scoreboard = $('.scoreboard')
-          $scoreboard.html(`Score: ${score}`)
+          $scoreboard.text(`Score: ${score}`)
+          break
         }
-      })
-    })
+      }
+    }
   }
 
   // 5.0 Timer Function ----------------->
@@ -188,26 +222,38 @@ $(() => {
   let timerRunning = false
   let countdown = null
   let timeRemaining = 60
-  let $timer = $('.timer')
-  const $startButton = $('.startButton')
-  $startButton.on('click', () => {
-    startStopBtn()
-    setInterval(gameLoop, 500)
+  let lastMoveTime = 0
+  const MOVE_INTERVAL = 500
 
-
-    function gameLoop () {
-      if(gameIsPlaying === true) {
-        moveAliens()
-        moveLasers()
-        checkForLaserHit()
-        checkIfLost()
-        checkIfWin()
-        enemyHit()
-
-      } else {
-        console.log('game over')
-      }
+  function gameLoop(timestamp) {
+    if (!gameIsPlaying) {
+      return
     }
+
+    if (timestamp - lastMoveTime >= MOVE_INTERVAL) {
+      moveAliens()
+      moveLasers()
+      checkForLaserHit()
+      checkIfLost()
+      checkIfWin()
+      enemyHit()
+      lastMoveTime = timestamp
+    }
+
+    animationFrameId = requestAnimationFrame(gameLoop)
+  }
+
+  $startButton.on('click', () => {
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId)
+    }
+    if (gameLoopInterval) {
+      clearInterval(gameLoopInterval)
+    }
+    
+    startStopBtn()
+    lastMoveTime = performance.now()
+    animationFrameId = requestAnimationFrame(gameLoop)
   })
 
   // 6.0 Start Button Function ------------>
@@ -218,36 +264,33 @@ $(() => {
     if(timerRunning) return false
     timerRunning = true
     gameIsPlaying = true
-    const $front = $('.front')
+    timeRemaining = 60
+    
     $front.css('display', 'none')
-    const $board = $('.board')
     $board.css('visibility', 'visible')
-    const $logo = $('.logo')
+
+    if (countdown) {
+      clearInterval(countdown)
+    }
 
     countdown = setInterval(() => {
       timeRemaining = timeRemaining - 1
-      console.log(timeRemaining)
       $timer.text(`${timeRemaining}`)
       if (gameIsPlaying === false) {
         $front.css('display', 'block')
         clearInterval(countdown)
         $board.css('visibility', 'hidden')
-        const $imgalien = $('.imgalien')
-        $imgalien.css('visibility', 'hidden')
         timerRunning = false
         $timer.css('display', 'none')
-        const $rules = $('.rules')
         $rules.css('visibility', 'hidden')
 
         $logo.html(`Game over! Your score is ${score}.`)
-        const $scoreboard = $('.scoreboard')
         $scoreboard.css('visibility', 'hidden')
 
         $startButton.html('Try again?')
-        $startButton.on('click', () => {
+        $startButton.off('click').on('click', () => {
           window.location.reload()
         })
-
       }
     }, 1000)
   }
@@ -255,36 +298,41 @@ $(() => {
   //7.0 PLAYER MOVEMENT --------->
 
   let playerCurrentIndex = 290
-  const $player = $(gameboard[playerCurrentIndex]).addClass('player')
-  const $gridItems = $('.grid')
-
+  let previousPlayerIndex = 290
+  gameboard[playerCurrentIndex].classList.add('player')
 
   $(window).on('keydown', (e) => {
+    if (!gameIsPlaying) return
+    
     switch(e.keyCode) {
       case 37:
-      if (playerCurrentIndex <= 280) {
-        return
-      }
-      $gridItems.removeClass('player')
-      playerCurrentIndex--
-      $(gameboard).eq(playerCurrentIndex).addClass('player')
-      break
+        if (playerCurrentIndex <= 280) {
+          return
+        }
+        gameboard[previousPlayerIndex].classList.remove('player')
+        playerCurrentIndex--
+        previousPlayerIndex = playerCurrentIndex
+        gameboard[playerCurrentIndex].classList.add('player')
+        break
       case 39:
-      if (playerCurrentIndex >= 299) {
-        return
-      }
-      $gridItems.removeClass('player')
-      playerCurrentIndex ++
-      $(gameboard).eq(playerCurrentIndex).addClass('player')
-      break
+        if (playerCurrentIndex >= 299) {
+          return
+        }
+        gameboard[previousPlayerIndex].classList.remove('player')
+        playerCurrentIndex++
+        previousPlayerIndex = playerCurrentIndex
+        gameboard[playerCurrentIndex].classList.add('player')
+        break
       case 32:
         const laserPosition = playerCurrentIndex - 20
         // only allow 1 laser per grid!
-        if (lasers.map(l => l.index).indexOf(laserPosition) > 0) return
-        const newLaser = new Laser(laserPosition, 'up', 'laser')
-        lasers.push(newLaser)
-        blast.play()
-      break
+        const laserExists = lasers.some(l => l.index === laserPosition)
+        if (!laserExists && laserPosition >= 0) {
+          const newLaser = new Laser(laserPosition, 'up', 'laser')
+          lasers.push(newLaser)
+          blast.play()
+        }
+        break
     }
   })
 })
