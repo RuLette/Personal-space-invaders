@@ -1,14 +1,5 @@
 # Personal Space Invaders
 
-## Brief
-
-Create a game using HTML, CSS, JavaScript & jQuery (optional)
-The game should be technically challenging & have backend logic that was reasonably complex.
-The code implemented should be "DRY" as possible, using Object Oriented Programming when possible.
-
-## Timeframe
-7 days
-
 ## Technologies used
 JavaScript (ES6)
 jQuery
@@ -18,7 +9,7 @@ GitHub
 
 ## Game Instructions
 
-![psimain](https://user-images.githubusercontent.com/29276064/57708402-2a97af80-7661-11e9-9863-9a8a4e46148d.png)
+![psimain](https://user-images.githubusercontent.com/29276064/57708402-2a97af80-7661-11e9-8263-9a8a4e46148d.png)
 
 ![psigame](https://user-images.githubusercontent.com/29276064/57709844-aabf1480-7663-11e9-827e-db9b24cd2545.png)
 
@@ -66,7 +57,7 @@ As the game board was 20 grids wide, the alien closest to the end would then be 
 
 ~~~
 move() {
-  $(gameboard).eq(this.currentIndex).removeClass('alien')
+  gameboard[this.currentIndex].classList.remove('alien')
   if (this.currentMoves < 9) {
     this.currentMoves++
     this.enemyLaser()
@@ -82,7 +73,6 @@ move() {
   }
   this.render()
 }
-}
 ~~~
 
 The first early look at the game at movement mechanics of the game can be viewed  here: https://codepen.io/RuLette/pen/ErrPoY
@@ -97,9 +87,8 @@ Next the enemy lasers were created by adding the index of 20 to each alien so th
 enemyLaser() {
   const enemyLaserPosition = this.currentIndex + 20
   const shouldFire = Math.floor(Math.random() * 15)
-  let enemyLaser
   if (!shouldFire) {
-    enemyLaser = new Laser(enemyLaserPosition, 'down', 'enemyLaser')
+    const enemyLaser = new Laser(enemyLaserPosition, 'down', 'enemyLaser')
     enemyLasers.push(enemyLaser)
   }
 }
@@ -110,9 +99,8 @@ The collision mechanics were created by checking if the player laser and aliens 
 The win conditions were met if the array of aliens were empty before the game had ended.
 
 ~~~
-
 function checkIfWin(){
-  if (aliens === undefined || aliens.length === 0) {
+  if (aliens.length === 0) {
     excellentplay.play()
     gameIsPlaying = false
   }
@@ -121,56 +109,101 @@ function checkIfWin(){
 
 When the main functionality of the game was made, a scoreboard was added. Audio and styling was added to the game last.
 
+## Performance Optimizations
+
+The game has been optimized for better performance:
+
+- **requestAnimationFrame**: Replaced `setInterval` with `requestAnimationFrame` for smoother, browser-optimized animations
+- **Native DOM API**: Switched from jQuery DOM manipulation to native `classList` methods for faster performance
+- **DOM Element Caching**: All frequently accessed DOM elements are cached at initialization to avoid repeated queries
+- **Efficient Array Operations**: Optimized collision detection and laser cleanup using reverse iteration to safely remove items from arrays
+- **Throttled Updates**: Game logic updates are throttled to run every 500ms while maintaining smooth rendering
+
+The game loop now uses `requestAnimationFrame` with throttled updates:
+
+~~~
+function gameLoop(timestamp) {
+  if (!gameIsPlaying) {
+    return
+  }
+
+  if (timestamp - lastMoveTime >= MOVE_INTERVAL) {
+    moveAliens()
+    moveLasers()
+    checkForLaserHit()
+    checkIfLost()
+    checkIfWin()
+    enemyHit()
+    lastMoveTime = timestamp
+  }
+
+  animationFrameId = requestAnimationFrame(gameLoop)
+}
+~~~
+
 ## Challenges
 
 One of the most challenging aspects of creating this game was executing the shooting mechanism.  
 
 ~~~
 function checkForLaserHit() {
-  lasers.forEach((laser, laserIndex) => {
+  for (let laserIndex = lasers.length - 1; laserIndex >= 0; laserIndex--) {
+    const laser = lasers[laserIndex]
+    
     if (laser.index < 20) {
-      $(gridItems[laser.index]).removeClass('laser')
+      gameboard[laser.index].classList.remove('laser')
       lasers.splice(laserIndex, 1)
+      continue
     }
-    aliens.forEach((alien, alienIndex) => {
+    
+    for (let alienIndex = aliens.length - 1; alienIndex >= 0; alienIndex--) {
+      const alien = aliens[alienIndex]
       if (laser.index === alien.currentIndex){
-        $(gridItems[laser.index]).removeClass('alien')
-        $(gridItems[laser.index]).removeClass('laser')
+        gameboard[laser.index].classList.remove('alien')
+        gameboard[laser.index].classList.remove('laser')
         aliens.splice(alienIndex, 1)
         lasers.splice(laserIndex, 1)
         score += 1
-        const $scoreboard = $('.scoreboard')
-        $scoreboard.html(`Score: ${score}`)
+        $scoreboard.text(`Score: ${score}`)
+        break
       }
-    })
-  })
-}
-~~~
-
-There was a bug where enemy lasers would continue firing even after the game was over on the game over screen. After debugging for some time, I applied a filter on enemy lasers so that they could be removed from the game board after they had reached index 299.
-
-~~~
-move() {
-  // remove out of bound lasers
-  enemyLasers = enemyLasers.filter(l => l.index <= 299)
-  lasers = lasers.filter(l => l.index >= 0)
-  $(gameboard).eq(this.index).removeClass(this.type)
-  if (this.direction === 'up') {
-    this.index = this.index - 20
-    this.render()
-  } else {
-    this.removeEnemyLaser()
-    this.index = this.index + 20
-    this.renderenemy()
+    }
   }
 }
 ~~~
 
-## Future features
+There was a bug where enemy lasers would continue firing even after the game was over on the game over screen. After debugging for some time, I applied a filter on enemy lasers so that they could be removed from the game board after they had reached index 299. The laser cleanup is now handled efficiently in the `moveLasers()` function:
 
-In future I hope to add these features to the game:
+~~~
+function moveLasers() {
+  const validLasers = []
+  const validEnemyLasers = []
+  
+  lasers.forEach(laser => {
+    const oldIndex = laser.index
+    laser.move()
+    if (laser.index >= 0) {
+      validLasers.push(laser)
+    } else {
+      if (oldIndex >= 0 && oldIndex < 300) {
+        gameboard[oldIndex].classList.remove('laser')
+      }
+    }
+  })
+  
+  enemyLasers.forEach(eLaser => {
+    const oldIndex = eLaser.index
+    eLaser.move()
+    if (eLaser.index <= 299) {
+      validEnemyLasers.push(eLaser)
+    } else {
+      if (oldIndex >= 0 && oldIndex < 300) {
+        gameboard[oldIndex].classList.remove('enemylaser')
+      }
+    }
+  })
+  
+  lasers = validLasers
+  enemyLasers = validEnemyLasers
+}
 
-- Adding levels to the game and allowing new levels to be more difficult
-- The player can have three lives or a health bar
-- The logged in user can save their name for the high score
-- Adding a high score feature to the game that displays the user who has reached the high score
