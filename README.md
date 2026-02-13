@@ -9,8 +9,6 @@ GitHub
 
 ## Game Instructions
 
-![psimain](https://user-images.githubusercontent.com/29276064/57708402-2a97af80-7661-11e9-8263-9a8a4e46148d.png)
-
 ![psigame](https://user-images.githubusercontent.com/29276064/57709844-aabf1480-7663-11e9-827e-db9b24cd2545.png)
 
 ### Controls
@@ -108,38 +106,6 @@ function checkIfWin(){
 ~~~
 
 When the main functionality of the game was made, a scoreboard was added. Audio and styling was added to the game last.
-
-## Performance Optimizations
-
-The game has been optimized for better performance:
-
-- **requestAnimationFrame**: Replaced `setInterval` with `requestAnimationFrame` for smoother, browser-optimized animations
-- **Native DOM API**: Switched from jQuery DOM manipulation to native `classList` methods for faster performance
-- **DOM Element Caching**: All frequently accessed DOM elements are cached at initialization to avoid repeated queries
-- **Efficient Array Operations**: Optimized collision detection and laser cleanup using reverse iteration to safely remove items from arrays
-- **Throttled Updates**: Game logic updates are throttled to run every 500ms while maintaining smooth rendering
-
-The game loop now uses `requestAnimationFrame` with throttled updates:
-
-~~~
-function gameLoop(timestamp) {
-  if (!gameIsPlaying) {
-    return
-  }
-
-  if (timestamp - lastMoveTime >= MOVE_INTERVAL) {
-    moveAliens()
-    moveLasers()
-    checkForLaserHit()
-    checkIfLost()
-    checkIfWin()
-    enemyHit()
-    lastMoveTime = timestamp
-  }
-
-  animationFrameId = requestAnimationFrame(gameLoop)
-}
-~~~
 
 ## Challenges
 
