@@ -1,11 +1,14 @@
 body {
   text-align: center;
   background: url("images/spaceinvadersminimal.jpg");
-  width: 100vh;
+  width: 100vw;
   height: 100vh;
   display: flex;
-  margin: 0 auto;
+  margin: 0;
+  padding: 0;
   justify-content: center;
+  align-items: center;
+  position: relative;
 }
 
 html {
@@ -38,20 +41,55 @@ header {
 }
 
 .front {
-  top: 100px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 900px;
   height: 600px;
   padding: 0;
-  position: absolute;
+  position: fixed;
   display: flex;
   flex-direction: column;
   justify-content: center;
   border-radius: 15px;
   align-items: center;
+  z-index: 10;
+  margin: 0;
+}
+
+.gameOver {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 900px;
+  height: 600px;
+  padding: 0;
+  position: fixed;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 15px;
+  align-items: center;
+  z-index: 10;
+  margin: 0;
+}
+
+.gameOverLogo {
+  font-family: 'Lobster', cursive;
+  padding: 2%;
+  color: white;
+  background: black;
+  border-radius: 15px;
+  font-size: 60px;
+  line-height: 2;
+  text-shadow: 2px 3px gray;
+  margin-bottom: 40px;
 }
 
 .border {
   width: 900px;
+  position: relative;
+  margin: 0 auto;
 }
 
 .board {
@@ -89,6 +127,8 @@ button:hover {
 .startButton {
   margin-top: 40px;
   margin-bottom: 20px;
+  margin-left: auto;
+  margin-right: auto;
   border-radius: 15px;
   background: black;
   line-height: 1.5;
@@ -103,6 +143,21 @@ button:hover {
   align-items: center;
   justify-content: center;
   gap: 10px;
+}
+
+.tryAgainButton {
+  border-radius: 15px;
+  background: black;
+  line-height: 1.5;
+  width: 170px;
+  height: 80px;
+  font-family: 'Lobster', cursive;
+  font-size: 30px;
+  border: 1px solid black;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .grid {

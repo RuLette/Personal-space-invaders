@@ -108,13 +108,19 @@ $(() => {
         gameboard[this.index].classList.remove('enemylaser')
         this.index = this.index + 20
         if (this.index <= 299) {
-          this.renderenemy()
+          const hasAlien = aliens.some(alien => alien.currentIndex === this.index)
+          if (!hasAlien) {
+            this.renderenemy()
+          }
         }
       }
     }
 
     renderenemy() {
-      gameboard[this.index].classList.add('enemylaser')
+      const hasAlien = aliens.some(alien => alien.currentIndex === this.index)
+      if (!hasAlien) {
+        gameboard[this.index].classList.add('enemylaser')
+      }
     }
 
     render() {
@@ -145,6 +151,10 @@ $(() => {
       eLaser.move()
       if (eLaser.index <= 299) {
         validEnemyLasers.push(eLaser)
+        const hasAlien = aliens.some(alien => alien.currentIndex === eLaser.index)
+        if (!hasAlien && !gameboard[eLaser.index].classList.contains('enemylaser')) {
+          gameboard[eLaser.index].classList.add('enemylaser')
+        }
       } else {
         if (oldIndex >= 0 && oldIndex < 300) {
           gameboard[oldIndex].classList.remove('enemylaser')
@@ -277,17 +287,17 @@ $(() => {
       timeRemaining = timeRemaining - 1
       $timer.text(`${timeRemaining}`)
       if (gameIsPlaying === false) {
-        $front.css('display', 'block')
         clearInterval(countdown)
         $board.css('visibility', 'hidden')
         timerRunning = false
         $timer.css('display', 'none')
-        $rules.css('visibility', 'hidden')
-
-        $logo.html(`Game over! Your score is ${score}.`)
         $scoreboard.css('visibility', 'hidden')
-
+        $rules.css('display', 'none')
+        
+        $logo.html(`Game over! Your score is ${score}.`)
         $startButton.html('Try again?')
+        $startButton.find('img').remove()
+        $front.css('display', 'flex')
         $startButton.off('click').on('click', () => {
           window.location.reload()
         })

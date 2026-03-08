@@ -79,7 +79,7 @@ The first early look at the game at movement mechanics of the game can be viewed
 
 The player's movement was easier to define, with the player given a starting index of 290 (near the bottom of the gameboard). A switch statement was written to save the player's movement to key 37 ← (left) , 39 → (right) and 32 (spacebar).
 
-Next the enemy lasers were created by adding the index of 20 to each alien so the lasers would appear to be coming from each alien. The firing mechanics were generated randomly with Math.floor(Math.random() * 15).
+Next the enemy lasers were created. Enemy lasers start one row below the bottom row of aliens and move downward. The firing mechanics were generated randomly with Math.floor(Math.random() * 15). Enemy lasers are hidden when they appear in the same grid cell as an alien.
 
 ~~~
 enemyLaser() {
@@ -106,6 +106,32 @@ function checkIfWin(){
 ~~~
 
 When the main functionality of the game was made, a scoreboard was added. Audio and styling was added to the game last.
+
+## Performance Optimizations
+
+The game has been optimized for better performance:
+
+The game loop now uses `requestAnimationFrame` with throttled updates:
+
+~~~
+function gameLoop(timestamp) {
+  if (!gameIsPlaying) {
+    return
+  }
+
+  if (timestamp - lastMoveTime >= MOVE_INTERVAL) {
+    moveAliens()
+    moveLasers()
+    checkForLaserHit()
+    checkIfLost()
+    checkIfWin()
+    enemyHit()
+    lastMoveTime = timestamp
+  }
+
+  animationFrameId = requestAnimationFrame(gameLoop)
+}
+~~~
 
 ## Challenges
 
@@ -138,38 +164,4 @@ function checkForLaserHit() {
 }
 ~~~
 
-There was a bug where enemy lasers would continue firing even after the game was over on the game over screen. After debugging for some time, I applied a filter on enemy lasers so that they could be removed from the game board after they had reached index 299. The laser cleanup is now handled efficiently in the `moveLasers()` function:
-
-~~~
-function moveLasers() {
-  const validLasers = []
-  const validEnemyLasers = []
-  
-  lasers.forEach(laser => {
-    const oldIndex = laser.index
-    laser.move()
-    if (laser.index >= 0) {
-      validLasers.push(laser)
-    } else {
-      if (oldIndex >= 0 && oldIndex < 300) {
-        gameboard[oldIndex].classList.remove('laser')
-      }
-    }
-  })
-  
-  enemyLasers.forEach(eLaser => {
-    const oldIndex = eLaser.index
-    eLaser.move()
-    if (eLaser.index <= 299) {
-      validEnemyLasers.push(eLaser)
-    } else {
-      if (oldIndex >= 0 && oldIndex < 300) {
-        gameboard[oldIndex].classList.remove('enemylaser')
-      }
-    }
-  })
-  
-  lasers = validLasers
-  enemyLasers = validEnemyLasers
-}
-
+There was a bug where enemy lasers would continue firing even after the game was over on the game over screen. After debugging for some time, I applied efficient filtering on enemy lasers so that they could be removed from the game board after they had reached index 299. The laser cleanup is now handled efficiently in the `moveLasers()` function with proper bounds checking and visual cleanup.
