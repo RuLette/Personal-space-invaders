@@ -1,6 +1,9 @@
 body {
   text-align: center;
   background: url("images/spaceinvadersminimal.jpg");
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
   width: 100vw;
   height: 100vh;
   display: flex;
@@ -9,10 +12,13 @@ body {
   justify-content: center;
   align-items: center;
   position: relative;
+  overflow: hidden;
 }
 
 html {
   box-sizing: border-box;
+  overflow: hidden;
+  height: 100%;
 }
 *, *:before, *:after {
   box-sizing: inherit;
@@ -36,8 +42,11 @@ h1:hover {
 }
 
 header {
-  /* display: flex; */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
+  gap: 10px;
 }
 
 .front {
@@ -90,19 +99,22 @@ header {
   width: 900px;
   position: relative;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .board {
   width: 900px;
   line-height: 0;
-  margin: 0 auto;
+  margin: 40px auto;
   display: flex;
-  margin-top: 40px;
   flex-wrap: wrap;
   border-radius: 15px;
   visibility: hidden;
-  margin-bottom: 50px;
   background: white;
+  position: relative;
 }
 
 button:hover {
@@ -168,8 +180,10 @@ button:hover {
 .scoreboard {
   font-family: 'Press Start 2P', cursive;
   color: white;
-  font-size: 30px;
-  margin-top: 40px;
+  font-size: 20px;
+  margin-top: 0;
+  height: 30px;
+  min-height: 30px;
 }
 
 .gamescore {
@@ -208,7 +222,9 @@ button:hover {
 .timer {
   font-family: 'Press Start 2P', cursive;
   color: white;
-  font-size: 30px;
+  font-size: 20px;
+  height: 30px;
+  min-height: 30px;
 }
 
 @-webkit-keyframes pulse {
